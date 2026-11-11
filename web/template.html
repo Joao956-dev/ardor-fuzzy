@@ -1,0 +1,522 @@
+<title>ARDOR Marabá</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: faixa de cabeçalho estreita; herói com a pergunta e o veredito ao vivo; depois seções empilhadas
+   (simulador em duas colunas, 2024, como funciona). Paleta de fumaça (cinza-azulado) com brasa de urucum e o verde-azulado do Tocantins. */
+:root{
+  --bg:#eceef0; --surface:#f8f9fa; --ink:#1b2127; --muted:#5a6570; --line:#cdd3d9;
+  --ember:#b8430f; --river:#0f6e68;
+  --n0:#2e7d4f; --n1:#b8860b; --n2:#d4621a; --n3:#b3261e; --n4:#6b2c7a;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14181c; --surface:#1d2329; --ink:#e6e9ec; --muted:#9aa5b0; --line:#323b44;
+  --ember:#f08a4b; --river:#4fc3b8; --n0:#5cbf83; --n1:#e0b84a; --n2:#f08a4b; --n3:#ef6b62; --n4:#c48ad6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14181c; --surface:#1d2329; --ink:#e6e9ec; --muted:#9aa5b0; --line:#323b44;
+  --ember:#f08a4b; --river:#4fc3b8; --n0:#5cbf83; --n1:#e0b84a; --n2:#f08a4b; --n3:#ef6b62; --n4:#c48ad6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.55 var(--body);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:1.02;text-wrap:balance;margin:0;letter-spacing:.005em}
+h2{font-size:clamp(2rem,4.5vw,2.8rem);text-transform:uppercase}
+h3{font-size:1.35rem;font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+p{margin:0;max-width:65ch}
+.eyebrow{font:500 .72rem/1 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+a{color:var(--river)}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+
+/* topo */
+.top{border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand b{font:800 1.7rem/1 var(--display);letter-spacing:.06em;color:var(--ember)}
+.brand span{font:500 .75rem var(--mono);color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+nav{display:flex;gap:18px;flex-wrap:wrap}
+nav a{color:var(--muted);text-decoration:none;font:500 .8rem var(--mono);text-transform:uppercase;letter-spacing:.08em}
+nav a:hover{color:var(--ink)}
+
+/* herói */
+.hero .wrap{display:grid;grid-template-columns:1.15fr 1fr;gap:40px;padding-block:44px 36px}
+.hero h1{font-size:clamp(2.6rem,6.4vw,4.6rem);text-transform:uppercase}
+.hero h1 em{font-style:normal;color:var(--ember)}
+.lead{margin-top:16px;color:var(--muted);font-size:1.05rem}
+.pick{display:grid;gap:14px;margin-top:26px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.aviso{border:1px solid var(--ember);border-left-width:5px;color:var(--ink);padding:10px 14px;border-radius:8px;font:500 .92rem var(--body);margin:0 0 16px}
+.aviso b{color:var(--ember)}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);padding:7px 13px;border-radius:999px;font:500 .86rem var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.verdict{background:var(--surface);border:1px solid var(--line);padding:24px;display:grid;gap:16px;align-content:start;min-width:0}
+.vhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:10px;font:800 2.6rem/1 var(--display);text-transform:uppercase}
+.dot{width:16px;height:16px;border-radius:50%;background:currentColor;flex:none}
+.score{font:500 .8rem var(--mono);color:var(--muted);text-align:right}
+.score b{display:block;font:800 2.6rem/1 var(--display);color:var(--ink)}
+.readings{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.readings div{background:var(--surface);padding:10px 12px}
+.readings small{display:block;font:500 .68rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.readings span{font:600 1.15rem var(--mono)}
+.strip{display:grid;grid-template-columns:repeat(48,1fr);gap:2px;height:44px}
+.strip i{display:block;border-radius:2px}
+.strip-ax{display:flex;justify-content:space-between;font:400 .7rem var(--mono);color:var(--muted);margin-top:4px}
+.src{font:400 .72rem var(--mono);color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font:400 .74rem var(--mono);color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+/* fluxo guiado */
+.guia{padding-block:40px 44px}
+.guia h1{font-size:clamp(2.3rem,5.4vw,4rem);text-transform:uppercase;max-width:20ch}
+.guia h1 em{font-style:normal;color:var(--ember)}
+.steps{list-style:none;margin:30px 0 0;padding:0;display:grid;gap:0;max-width:880px}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;position:relative;padding-bottom:26px}
+.step:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.num{width:44px;height:44px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:800 1.3rem var(--display);background:var(--bg);color:var(--muted)}
+.step.final .num{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sbody{display:grid;gap:10px;min-width:0;padding-top:6px}
+.sbody h3{font-size:1.25rem}
+.sbody .q{color:var(--muted);font-size:.92rem}
+.facts-row{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:baseline}
+.facts-row span{font:600 1.15rem var(--mono)}
+.facts-row small{font:500 .7rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.1em;display:block}
+.verdict-line{font-size:1.02rem}
+.verdict-line b{font-weight:600}
+.tag{display:inline-block;font:600 .74rem var(--mono);padding:3px 9px;border-radius:999px;color:#fff;text-transform:uppercase;letter-spacing:.04em;vertical-align:2px}
+.answer{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--n1);padding:20px 22px;display:grid;gap:14px}
+.answer .big{font:800 clamp(1.9rem,4vw,2.7rem)/1.02 var(--display);text-transform:uppercase}
+.scale{position:relative;display:grid;grid-template-columns:25fr 20fr 20fr 17fr 18fr;height:12px;border-radius:6px;overflow:hidden}
+.scale i{display:block}
+.scale-wrap{position:relative;padding-top:4px}
+.marker{position:absolute;top:-4px;width:4px;height:20px;background:var(--ink);border-radius:2px;transform:translateX(-50%)}
+.scale-lab{display:grid;grid-template-columns:25fr 20fr 20fr 17fr 18fr;font:400 .68rem var(--mono);color:var(--muted);margin-top:6px}
+.next48{border-top:1px solid var(--line)}
+.next48 .wrap{padding-block:32px 40px;display:grid;gap:12px}
+
+/* tabela de comparação */
+.tbl{overflow-x:auto;border:1px solid var(--line)}
+.tbl table{border-collapse:collapse;width:100%;min-width:640px;font-size:.9rem}
+.tbl th,.tbl td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th{font:500 .7rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--surface)}
+.tbl tr.key td{background:color-mix(in srgb,var(--ember) 10%,transparent)}
+.tbl td.mono{font-family:var(--mono)}
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:30px}
+.pipeline div{background:var(--bg);padding:18px;display:grid;gap:8px;align-content:start}
+.pipeline b{font:500 .72rem var(--mono);color:var(--ember);letter-spacing:.1em;text-transform:uppercase}
+.pipeline h3{font-size:1.2rem}
+.pipeline p{font-size:.9rem;color:var(--muted)}
+.refs{font-size:.84rem;color:var(--muted);display:grid;gap:4px;margin:14px 0 0;padding-left:20px}
+
+section{border-top:1px solid var(--line)}
+section>.wrap{padding-block:48px}
+.sec-head{display:grid;gap:10px;margin-bottom:28px}
+
+/* simulador */
+.sim{display:grid;grid-template-columns:330px 1fr;gap:32px}
+.ctrls{display:grid;gap:18px;align-content:start}
+.ctrl label{display:flex;justify-content:space-between;font-weight:500;font-size:.92rem}
+.ctrl label output{font:500 .9rem var(--mono);color:var(--ember)}
+.ctrl input{width:100%;accent-color:var(--ember)}
+.ctrl small{display:block;color:var(--muted);font-size:.78rem}
+.out{display:grid;gap:22px;min-width:0}
+.stages{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stage{border-top:3px solid var(--line);padding-top:10px}
+.stage .eyebrow{display:block;margin-bottom:6px}
+.stage b{font:800 2.3rem/1 var(--display)}
+.stage span{display:block;font-size:.85rem;color:var(--muted)}
+.mfs{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.mfs figure{margin:0;min-width:0}
+.mfs figcaption{font:500 .72rem var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.mfs canvas{width:100%;height:130px;display:block}
+.rules{display:grid;gap:6px}
+.rule{display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center;font-size:.88rem}
+.rule .bar{height:6px;background:var(--line);position:relative}
+.rule .bar i{position:absolute;inset:0 auto 0 0;background:var(--ember)}
+.rule .f{font:500 .75rem var(--mono);color:var(--muted)}
+.cmp{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:.9rem;background:var(--surface);border:1px solid var(--line);padding:12px 14px}
+.pill{font:600 .78rem var(--mono);padding:3px 9px;border-radius:999px;color:#fff;text-transform:uppercase;letter-spacing:.04em}
+
+/* 2024 */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:26px}
+.facts div{background:var(--bg);padding:16px}
+.facts b{display:block;font:800 2.6rem/1 var(--display);color:var(--ember)}
+.facts span{font-size:.86rem;color:var(--muted)}
+.chartbox{overflow-x:auto}
+#c2024{width:100%;min-width:640px;height:260px;display:block}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-top:22px}
+.months div{text-align:center;font:400 .72rem var(--mono);color:var(--muted)}
+.months i{display:block;height:var(--h);background:var(--river);margin:0 auto 4px;width:70%;min-height:2px}
+.months .bars{display:flex;align-items:flex-end;height:90px}
+
+/* como funciona */
+.ideas{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.idea{display:grid;gap:10px;align-content:start}
+.idea .k{font:800 3rem/1 var(--display);color:var(--river)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:30px;font:500 .82rem var(--mono)}
+.flow span{border:1px solid var(--line);padding:8px 12px;background:var(--surface)}
+.flow em{font-style:normal;color:var(--muted)}
+
+footer{border-top:1px solid var(--line)}
+footer .wrap{padding-block:30px;display:grid;grid-template-columns:1fr 1fr;gap:28px;font-size:.86rem;color:var(--muted)}
+footer b{color:var(--ink)}
+
+@media (max-width:860px){
+  .pipeline{grid-template-columns:1fr 1fr}
+  .hero .wrap,.sim,footer .wrap{grid-template-columns:1fr}
+  .ideas{grid-template-columns:1fr}
+  .facts{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:480px){
+  .stages{grid-template-columns:1fr}
+  .mfs{grid-template-columns:1fr}
+  .readings span{font-size:1rem}
+}
+@media (prefers-reduced-motion:no-preference){.strip i,.rule .bar i{transition:background .25s,width .25s}}
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand"><b>ARDOR</b><span>calor + fumaça · Marabá, PA</span></div>
+  <nav><a href="#agora">Agora</a><a href="#simulador">Simulador</a><a href="#ano2024">2024</a><a href="#como">Como funciona</a></nav>
+</div></header>
+
+<main>
+<div id="agora"><div class="wrap guia">
+  <p class="aviso" id="snapAviso" role="status" hidden></p>
+  <p class="eyebrow">Sistema fuzzy de risco composto · <span id="vquando">agora</span></p>
+  <h1 style="margin-top:12px">Dá pra fazer atividade <em>ao ar livre</em> agora em Marabá?</h1>
+  <p class="lead">O ARDOR estima a chance de uma atividade ao ar livre fazer mal à saúde (exaustão pelo calor, falta de ar, crise de asma), considerando o calor e a fumaça ao mesmo tempo. Siga os passos de cima para baixo.</p>
+  <ol class="steps" aria-live="polite">
+    <li class="step"><span class="num">1</span><div class="sbody">
+      <h3>Quem vai sair e o que vai fazer?</h3>
+      <div class="chips" id="perfis" aria-label="Quem vai sair"></div>
+      <div class="chips" id="ativs" aria-label="O que vai fazer"></div>
+    </div></li>
+    <li class="step"><span class="num">2</span><div class="sbody">
+      <h3>Quanto calor o corpo sente?</h3>
+      <div class="facts-row"><div><small>Temperatura</small><span id="rT">–</span></div><div><small>Umidade</small><span id="rU">–</span></div><div><small>Sensação térmica</small><span id="rHI">–</span></div></div>
+      <p class="verdict-line" id="pCalor"></p>
+    </div></li>
+    <li class="step"><span class="num">3</span><div class="sbody">
+      <h3>Quanta fumaça há no ar?</h3>
+      <div class="facts-row"><div><small>PM2.5, média de 24 h</small><span id="rP">–</span></div><div><small>Limite da OMS</small><span>15 µg/m³</span></div></div>
+      <p class="verdict-line" id="pFumaca"></p>
+    </div></li>
+    <li class="step"><span class="num">4</span><div class="sbody">
+      <h3>Calor e fumaça juntos</h3>
+      <p class="verdict-line" id="pCarga"></p>
+    </div></li>
+    <li class="step final"><span class="num">5</span><div class="sbody">
+      <h3 id="pPergunta">A resposta</h3>
+      <div class="answer" id="answer">
+        <div class="big" id="vbig">…</div>
+        <p id="vtxt"></p>
+        <div>
+          <p class="q" id="vrisco" style="margin-bottom:8px"></p>
+          <div class="scale-wrap"><div class="scale" id="scale"></div><span class="marker" id="marker"></span></div>
+          <div class="scale-lab"><span>baixo</span><span>moderado</span><span>alto</span><span>muito alto</span><span>crítico</span></div>
+        </div>
+      </div>
+    </div></li>
+  </ol>
+</div></div>
+
+<div class="next48"><div class="wrap">
+  <h3>E nas próximas 48 horas?</h3>
+  <p class="q" id="next48q" style="color:var(--muted)"></p>
+  <div><div class="strip" id="strip"></div><div class="strip-ax" id="stripax"></div></div>
+  <p id="janela" style="font-weight:500"></p>
+  <div class="legend" id="legenda"></div>
+  <p class="src" id="fonte"></p>
+</div></div>
+
+<section id="simulador"><div class="wrap">
+  <div class="sec-head"><p class="eyebrow">Simulador</p><h2>Mexa nas condições e veja o sistema pensar</h2>
+    <p style="color:var(--muted)">Cada controle alimenta um dos três estágios. Os gráficos mostram o grau de pertinência de cada termo e a área que a defuzzificação (centroide) usa para chegar ao número final.</p></div>
+  <div class="sim">
+    <div class="ctrls">
+      <div class="ctrl"><label for="sT">Temperatura <output id="oT"></output></label><input id="sT" type="range" min="18" max="44" step="0.1" value="34"><small>Pico da tarde, em °C</small></div>
+      <div class="ctrl"><label for="sU">Umidade relativa <output id="oU"></output></label><input id="sU" type="range" min="15" max="100" step="1" value="55"><small>Em %, no mesmo horário</small></div>
+      <div class="ctrl"><label for="sP">PM2.5 (fumaça) <output id="oP"></output></label><input id="sP" type="range" min="0" max="180" step="0.1" value="35"><small>Média de 24 h em µg/m³. A OMS recomenda até 15.</small></div>
+      <div class="ctrl"><label for="sV">Vulnerabilidade <output id="oV"></output></label><input id="sV" type="range" min="0" max="10" step="0.5" value="5"><small>0 adulto saudável · 5 criança ou idoso · 9 asma ou cardiopatia</small></div>
+      <div class="ctrl"><label for="sE">Esforço da atividade <output id="oE"></output></label><input id="sE" type="range" min="0" max="10" step="0.5" value="6"><small>0 parado · 5 educação física · 9 obra, roça, futebol</small></div>
+      <div class="chips" id="cenarios" aria-label="Cenários prontos"></div>
+      <button class="chip" type="button" id="piorDia" style="border-color:var(--ember);color:var(--ember);justify-self:start"></button>
+    </div>
+    <div class="out">
+      <div class="stages">
+        <div class="stage" id="st1"><span class="eyebrow">1 · Estresse térmico</span><b id="v1"></b><span id="t1"></span></div>
+        <div class="stage" id="st2"><span class="eyebrow">2 · Carga ambiental</span><b id="v2"></b><span id="t2"></span></div>
+        <div class="stage" id="st3"><span class="eyebrow">3 · Risco pessoal</span><b id="v3"></b><span id="t3"></span></div>
+      </div>
+      <div class="cmp" id="cmp"></div>
+      <div class="mfs">
+        <figure><figcaption>Entrada · PM2.5</figcaption><canvas id="mPM"></canvas></figure>
+        <figure><figcaption>Entrada · temperatura</figcaption><canvas id="mT"></canvas></figure>
+        <figure><figcaption>Saída do estágio 2 · carga</figcaption><canvas id="mCG"></canvas></figure>
+        <figure><figcaption>Saída final · risco</figcaption><canvas id="mR"></canvas></figure>
+      </div>
+      <div><h3 style="margin-bottom:10px">Regras que mais pesaram</h3><div class="rules" id="regras"></div></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="ano2024"><div class="wrap">
+  <div class="sec-head"><p class="eyebrow">Resultados · 366 dias de 2024</p><h2>O que o índice oficial deixou passar</h2>
+    <p style="color:var(--muted)">Rodamos o ARDOR em cada dia de 2024 com dados horários de Marabá (reanálise CAMS de PM2.5 e ERA5 de temperatura e umidade, via Open-Meteo).</p></div>
+  <div class="facts" id="facts"></div>
+  <div class="chartbox"><canvas id="c2024"></canvas></div>
+  <div class="legend" style="margin-top:8px"><span><i style="background:var(--muted)"></i>linha: nível do IQAr (só fumaça)</span><span><i style="background:var(--n2)"></i>pontos: carga ambiental ARDOR (fumaça + calor)</span></div>
+  <h3 style="margin-top:34px">Horas seguras por dia para educação física (7h–17h)</h3>
+  <div class="months" id="meses"></div>
+</div></section>
+
+<section id="como"><div class="wrap">
+  <div class="sec-head"><p class="eyebrow">Como funciona</p><h2>Inferência fuzzy de Mamdani em três estágios</h2>
+    <p style="color:var(--muted)">Na lógica clássica, um valor pertence ou não a um conjunto (0 ou 1). Na lógica fuzzy (Zadeh, 1965), ele pertence com um grau entre 0 e 1. Assim, 33 °C é "quente" com grau 0,29 e "muito quente" com grau 0,29 ao mesmo tempo, e o sistema não muda de resposta bruscamente quando a temperatura passa de um limite.</p></div>
+  <div class="pipeline">
+    <div><b>Etapa 1</b><h3>Fuzzificação</h3><p>Cada entrada (temperatura, umidade, PM2.5, vulnerabilidade, esforço) é convertida em graus de pertinência por funções triangulares e trapezoidais. Os conjuntos de PM2.5 cruzam o grau 0,5 nos limites oficiais do IQAr: 15, 50, 75 e 125 µg/m³.</p></div>
+    <div><b>Etapa 2</b><h3>Base de regras</h3><p>Regras SE–ENTÃO escritas em termos linguísticos, como "SE fumaça moderada E calor alto ENTÃO carga alta". São 77 regras em três estágios encadeados (12 + 20 + 45); uma tabela única exigiria 540.</p></div>
+    <div><b>Etapa 3</b><h3>Inferência</h3><p>A força de cada regra é o mínimo dos graus dos antecedentes (operador E). O consequente é cortado nessa força, e as saídas de todas as regras são agregadas pelo máximo.</p></div>
+    <div><b>Etapa 4</b><h3>Defuzzificação</h3><p>O centroide da área agregada gera um número. O estágio 1 dá o estresse térmico (0–10), o estágio 2 a carga ambiental (0–100) e o estágio 3 o risco pessoal (0–100), que vira a conduta.</p></div>
+  </div>
+  <h3 style="margin-bottom:6px">Onde está a inovação</h3>
+  <p style="color:var(--muted);margin-bottom:14px">Cada linha é uma combinação de condições. Os índices oficiais avaliam fumaça e calor separadamente; o ARDOR avalia os dois juntos e para uma pessoa específica (aqui, uma criança em educação física).</p>
+  <div class="tbl"><table>
+    <thead><tr><th>PM2.5 (µg/m³)</th><th>Tempo</th><th>IQAr diz (só fumaça)</th><th>Índice de calor diz (só calor)</th><th>ARDOR: carga ambiental</th><th>ARDOR: criança em ed. física</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">10</td><td>27 °C, 65 %</td><td>boa</td><td>cautela (28,5 °C)</td><td>baixa (10)</td><td>com pausas (35)</td></tr>
+      <tr><td class="mono">10</td><td>34 °C, 60 %</td><td>boa</td><td>perigo (42,2 °C)</td><td>moderada (32)</td><td>mais curto e leve (57)</td></tr>
+      <tr><td class="mono">35</td><td>27 °C, 65 %</td><td>moderada</td><td>cautela (28,5 °C)</td><td>moderada (32)</td><td>mais curto e leve (57)</td></tr>
+      <tr class="key"><td class="mono">35</td><td>34 °C, 60 %</td><td>moderada</td><td>perigo (42,2 °C)</td><td><b>alta (55)</b></td><td><b>melhor em local fechado (76)</b></td></tr>
+      <tr><td class="mono">60</td><td>27 °C, 65 %</td><td>ruim</td><td>cautela (28,5 °C)</td><td>alta (55)</td><td>melhor em local fechado (76)</td></tr>
+      <tr class="key"><td class="mono">60</td><td>34 °C, 60 %</td><td>ruim</td><td>perigo (42,2 °C)</td><td><b>muito alta (75)</b></td><td><b>não fazer ao ar livre (93)</b></td></tr>
+    </tbody></table></div>
+  <p style="color:var(--muted);font-size:.86rem;margin-top:8px">Linhas destacadas: o IQAr continua "moderada" ou "ruim", mas a presença do calor sobe a carga em um nível. Valores calculados pelo próprio sistema.</p>
+  <h3 style="margin-top:34px">Fontes</h3>
+  <ol class="refs">
+    <li>Rai M. et al. Heat-related cardiorespiratory mortality: effect modification by air pollution across 482 cities from 24 countries. Environment International, 174, 107825, 2023.</li>
+    <li>Jones-Ngo C. G. et al. Joint effects of wildfire smoke and extreme heat on hospitalizations in California, 2011–2020. GeoHealth, 9(6), 2025.</li>
+    <li>Hájek P., Olej V. Air pollution assessment using hierarchical fuzzy inference systems. Sci. Papers Univ. Pardubice, Ser. D, 15, 2009.</li>
+    <li>Bezerra P. E., Pessoa F., Ferreira Filho D. Modelagem espacial da vulnerabilidade à inundação no município de Marabá-PA via lógica fuzzy. Rev. Geoaraguaia, 13(2), 2023.</li>
+    <li>Zadeh L. A. Fuzzy sets. Information and Control, 8(3), 1965. · Mamdani E. H., Assilian S. Int. J. Man-Machine Studies, 7(1), 1975.</li>
+    <li>Raju G. V. S., Zhou J., Kisner R. A. Hierarchical fuzzy control. Int. J. Control, 54(5), 1991.</li>
+    <li>Resolução CONAMA nº 506/2024 e MMA, Orientação técnica do IQAr, jan. 2025 · OMS, Global Air Quality Guidelines, 2021.</li>
+    <li>Rothfusz L. P. The heat index equation. NWS, SR 90-23, 1990 · Dados: CAMS e ERA5 (Copernicus) via Open-Meteo.</li>
+  </ol>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <div><b>Equipe</b><br>João Vitor Barros · Luiz Antônio Machado<br>Inteligência Artificial · Prof. Dr. Elton Alves<br>Engenharia da Computação · UNIFESSPA · 2026</div>
+  <div><b>Dados e limites</b><br>PM2.5 do modelo CAMS (resolução de ~40 km) e meteorologia ERA5/previsão via Open-Meteo. Ferramenta acadêmica de apoio à decisão, não substitui a Defesa Civil nem orientação médica. Desenvolvido com apoio de IA generativa (Claude, Anthropic), conforme declarado no artigo.</div>
+</div></footer>
+
+<script>
+/*ENGINE*/
+const D2024 = /*DIARIO*/;
+const ST = /*STATS*/;
+const SNAP = /*SNAP*/;
+</script>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NC = () => [css('--n0'), css('--n1'), css('--n2'), css('--n3'), css('--n4')];
+const NOMES = ['Pode normalmente', 'Com pausas', 'Mais curto e leve', 'Melhor em local fechado', 'Não fazer ao ar livre'];
+const NIVR = ['baixo', 'moderado', 'alto', 'muito alto', 'crítico'];
+const fmt = (x, d = 0) => x.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const termo = t => t.replace('_', ' ');
+// conduta por nível: [título, explicação]; v = verbo da atividade
+const ACAO = v => [
+  [`Pode ${v} normalmente`, 'As condições estão tranquilas. Leve água.'],
+  [`Pode ${v}, com pausas`, 'Faça pausas a cada 20 minutos, beba água e procure sombra.'],
+  ['Faça mais curto e mais leve', 'Diminua o tempo e a intensidade e prefira o começo da manhã.'],
+  [`Melhor não ${v} ao ar livre`, 'Leve a atividade para um local fechado e ventilado.'],
+  [`Não ${v} ao ar livre agora`, 'Fique em local fechado. Se precisar sair, use máscara PFF2.']];
+const heatIndex = (t, u) => { const f = t * 9 / 5 + 32; let h = 0.5 * (f + 61 + (f - 68) * 1.2 + u * 0.094);
+  if ((h + f) / 2 >= 80) h = -42.379 + 2.04901523 * f + 10.14333127 * u - .22475541 * f * u - .00683783 * f * f - .05481717 * u * u + .00122874 * f * f * u + .00085282 * f * u * u - .00000199 * f * f * u * u;
+  return (h - 32) * 5 / 9; };
+const IQN = ['boa', 'moderada', 'ruim', 'muito ruim', 'péssima'];
+const nivIQ = p => p <= 15 ? 0 : p <= 50 ? 1 : p <= 75 ? 2 : p <= 125 ? 3 : 4;
+
+const PERFIS = [['Adulto saudável', 1, 'um adulto saudável'], ['Criança', 5, 'uma criança'], ['Idoso', 6, 'uma pessoa idosa'], ['Asma ou cardiopatia', 8.5, 'alguém com asma ou doença do coração']];
+const ATIVS = [['Caminhar', 2, 'caminhar'], ['Educação física', 5.5, 'fazer educação física'], ['Esforço pesado', 8, 'fazer esforço pesado']];
+let perfil = 1, ativ = 1, prev = null;
+
+function chips(el, lista, get, set) {
+  el.innerHTML = '';
+  lista.forEach(([n], i) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = n;
+    b.setAttribute('aria-pressed', i === get()); b.onclick = () => { set(i); chips(el, lista, get, set); drawNow(); };
+    el.appendChild(b);
+  });
+}
+chips($('perfis'), PERFIS, () => perfil, i => perfil = i);
+chips($('ativs'), ATIVS, () => ativ, i => ativ = i);
+$('legenda').innerHTML = NOMES.map((n, i) => `<span><i style="background:var(--n${i})"></i>${n}</span>`).join('');
+
+// ---------------- previsão (ao vivo com recuo para o retrato embutido)
+function montar(aq, wx, origem) {
+  const pmByT = {}; aq.hourly.time.forEach((t, i) => pmByT[t] = aq.hourly.pm2_5[i]);
+  const tAQ = aq.hourly.time, horas = [];
+  wx.hourly.time.forEach((t, i) => {
+    const k = tAQ.indexOf(t); if (k < 0) return;
+    const win = aq.hourly.pm2_5.slice(Math.max(0, k - 23), k + 1).filter(v => v != null);
+    if (!win.length || wx.hourly.temperature_2m[i] == null) return;
+    horas.push({ t, T: wx.hourly.temperature_2m[i], U: wx.hourly.relative_humidity_2m[i], pm: win.reduce((a, b) => a + b, 0) / win.length });
+  });
+  return { horas, origem };
+}
+async function carregar() {
+  try {
+    const base = 'latitude=-5.37&longitude=-49.12&timezone=America%2FBelem';
+    const [a, w] = await Promise.all([
+      fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?${base}&hourly=pm2_5&forecast_days=3&past_days=1`).then(r => r.json()),
+      fetch(`https://api.open-meteo.com/v1/forecast?${base}&hourly=temperature_2m,relative_humidity_2m&forecast_days=3&past_days=1`).then(r => r.json())]);
+    if (!a.hourly || !w.hourly) throw 0;
+    prev = montar(a, w, 'Previsão ao vivo · Open-Meteo (CAMS + modelos meteorológicos)'); prev.snap = false;
+  } catch (e) {
+    prev = montar(SNAP.aq, SNAP.wx, `Previsão capturada em ${SNAP.quando} · Open-Meteo (sem conexão com a API no momento).`); prev.snap = true;
+  }
+  drawNow();
+}
+
+function lvlNome(V, x) { const g = V.fuzz(x); return termo(Object.keys(g).reduce((a, b) => g[a] >= g[b] ? a : b)); }
+function drawNow() {
+  if (!prev) return;
+  const vu = PERFIS[perfil][1], es = ATIVS[ativ][1];
+  const agora = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 13) + ':00'; // horário de Belém
+  let i0 = prev.horas.findIndex(h => h.t >= agora);
+  if (i0 < 0) i0 = Math.max(0, prev.horas.length - 48);
+  const fora = agora < prev.horas[0].t || agora > prev.horas[prev.horas.length - 1].t;
+  const av = $('snapAviso'); av.hidden = !prev.snap;
+  if (prev.snap) av.innerHTML = `<b>Dados capturados em ${SNAP.quando}, não ao vivo.</b>` + (fora
+    ? ` A hora atual está fora do período capturado (${prev.horas[0].t.slice(8, 10)}/${prev.horas[0].t.slice(5, 7)} a ${prev.horas[prev.horas.length - 1].t.slice(8, 10)}/${prev.horas[prev.horas.length - 1].t.slice(5, 7)}): as condições abaixo são de outro dia.`
+    : ' A previsão pode ter mudado desde a captura.');
+  const fatia = prev.horas.slice(i0, i0 + 48), C = NC();
+  const res = fatia.map(h => ({ ...h, r: ARDOR.avaliar(h.T, h.U, h.pm, vu, es) }));
+  const a = res[0], r = a.r, quem = PERFIS[perfil][2], verbo = ATIVS[ativ][2], acoes = ACAO(verbo);
+  const dataHora = h => h.t.slice(8, 10) + '/' + h.t.slice(5, 7) + ' às ' + h.t.slice(11, 16);
+  $('vquando').textContent = 'condições de ' + dataHora(a);
+  // passo 2: calor
+  const hi = heatIndex(a.T, a.U), tc = lvlNome(ARDOR.vars.CALOR, r.calor);
+  $('rT').textContent = fmt(a.T, 1) + ' °C'; $('rU').textContent = fmt(a.U) + ' %'; $('rHI').textContent = fmt(hi, 1) + ' °C';
+  $('pCalor').innerHTML = `Com ${fmt(a.U)} % de umidade, ${fmt(a.T, 1)} °C pesam no corpo como ${fmt(hi, 1)} °C. Estresse térmico <b>${tc}</b> (${fmt(r.calor, 1)} de 10).`;
+  // passo 3: fumaça
+  const iq = nivIQ(a.pm);
+  $('rP').textContent = fmt(a.pm, 1) + ' µg/m³';
+  $('pFumaca').innerHTML = `Pelo índice oficial (IQAr), a qualidade do ar está <span class="tag" style="background:${C[iq]}">${IQN[iq]}</span>.` +
+    (a.pm > 15 ? ` A concentração está ${fmt(a.pm / 15, 1)} vezes acima do limite recomendado pela OMS.` : ' Dentro do limite recomendado pela OMS.');
+  // passo 4: carga combinada e sinergia
+  const nC = ARDOR.nivel(r.carga), soF = ARDOR.nivel(ARDOR.FIS2.inferir({ PM25: a.pm, calor: 0 }).y), soC = ARDOR.nivel(ARDOR.FIS2.inferir({ PM25: 0, calor: r.calor }).y);
+  const cn = ['baixa', 'moderada', 'alta', 'muito alta', 'crítica'];
+  $('pCarga').innerHTML = `O ARDOR combina os dois numa carga ambiental <span class="tag" style="background:${C[nC]}">${cn[nC]}</span> (${fmt(r.carga)} de 100). ` +
+    (nC > Math.max(soF, soC) ? '<b style="color:var(--ember)">Juntos, calor e fumaça pesam mais do que cada um indicaria sozinho.</b> É isso que os índices separados não mostram.'
+      : 'Nesse momento, a combinação não piora o quadro além do fator mais forte.');
+  // passo 5: resposta
+  $('pPergunta').textContent = `Então: ${quem} pode ${verbo} ao ar livre agora?`;
+  $('vbig').textContent = acoes[r.nivel][0]; $('vbig').style.color = C[r.nivel];
+  $('answer').style.borderLeftColor = C[r.nivel];
+  $('vtxt').textContent = acoes[r.nivel][1];
+  $('vrisco').innerHTML = `Risco de passar mal durante a atividade: <b>${fmt(r.risco)} de 100 (${NIVR[r.nivel]})</b>, considerando o ambiente, a vulnerabilidade de ${quem} e o esforço de ${verbo}.`;
+  $('scale').innerHTML = C.map(c => `<i style="background:${c}"></i>`).join('');
+  $('marker').style.left = Math.min(99.5, Math.max(.5, r.risco)) + '%';
+  // próximas 48 h
+  $('next48q').textContent = `Cada barra é uma hora. A cor mostra a recomendação para ${quem} ${verbo} naquele horário.`;
+  $('strip').innerHTML = res.map(h => `<i style="background:${C[h.r.nivel]}" title="${dataHora(h)} · ${acoes[h.r.nivel][0]} (risco ${fmt(h.r.risco)})"></i>`).join('');
+  const ax = [0, 12, 24, 36, 47].map(k => res[k] ? res[k].t.slice(11, 13) + 'h' : '');
+  $('stripax').innerHTML = ax.map(s => `<span>${s}</span>`).join('');
+  const seg = res.filter(h => { const hh = +h.t.slice(11, 13); return hh >= 6 && hh <= 18 && h.r.nivel <= 1; });
+  if (!seg.length) $('janela').textContent = `Nas próximas 48 h não há horário de dia (6h a 18h) bom para ${quem} ${verbo} ao ar livre.`;
+  else { const s = seg[0]; $('janela').textContent = `Melhor horário: a partir de ${dataHora(s)}. São ${seg.length} horas boas entre 6h e 18h nas próximas 48 h.`; }
+  $('fonte').textContent = prev.origem;
+}
+
+// ---------------- simulador
+const S = ['T', 'U', 'P', 'V', 'E'];
+const CEN = [['Manhã limpa', [27, 80, 8, 5, 5.5]], ['Tarde de novembro', [34, 55, 35, 5, 5.5]], ['Fumaça pesada', [31, 60, 110, 8.5, 5]], ['Calor extremo seco', [39, 30, 12, 6, 8]]];
+const cen = $('cenarios');
+CEN.forEach(([n, v]) => { const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.textContent = n;
+  b.onclick = () => { S.forEach((k, i) => $('s' + k).value = v[i]); sim(); }; cen.appendChild(b); });
+
+function plotMF(cv, V, x, agg) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.scale(dpr, dpr);
+  const pad = { l: 6, r: 6, t: 8, b: 18 }, W = w - pad.l - pad.r, H = h - pad.t - pad.b;
+  const X = u => pad.l + (u - V.lo) / (V.hi - V.lo) * W, Y = m => pad.t + (1 - m) * H;
+  const C = NC(), ts = Object.keys(V.termos);
+  g.strokeStyle = css('--line'); g.lineWidth = 1; g.beginPath(); g.moveTo(pad.l, Y(0)); g.lineTo(w - pad.r, Y(0)); g.stroke();
+  if (agg) { g.fillStyle = css('--ember'); g.globalAlpha = .28; g.beginPath(); g.moveTo(X(V.lo), Y(0));
+    V.u.forEach((u, i) => g.lineTo(X(u), Y(agg[i]))); g.lineTo(X(V.hi), Y(0)); g.fill(); g.globalAlpha = 1; }
+  ts.forEach((t, k) => { g.strokeStyle = C[Math.round(k * 4 / Math.max(1, ts.length - 1))]; g.lineWidth = 1.6; g.beginPath();
+    V.u.forEach((u, i) => { const m = V.mf(t, u); i ? g.lineTo(X(u), Y(m)) : g.moveTo(X(u), Y(m)); }); g.stroke(); });
+  g.strokeStyle = css('--ink'); g.setLineDash([4, 3]); g.lineWidth = 1.2; g.beginPath(); g.moveTo(X(x), pad.t); g.lineTo(X(x), Y(0)); g.stroke(); g.setLineDash([]);
+  g.fillStyle = css('--muted'); g.font = '10px ' + css('--mono'); g.textAlign = 'left'; g.fillText(V.lo, pad.l, h - 4);
+  g.textAlign = 'right'; g.fillText(V.hi, w - pad.r, h - 4);
+}
+const nomeVar = { T: 'temperatura', UR: 'umidade', PM25: 'fumaça', calor: 'calor', carga: 'carga', vuln: 'vulnerabilidade', esforco: 'esforço' };
+function sim() {
+  const v = Object.fromEntries(S.map(k => [k, +$('s' + k).value]));
+  $('oT').textContent = fmt(v.T, 1) + ' °C'; $('oU').textContent = v.U + ' %'; $('oP').textContent = fmt(v.P, v.P % 1 ? 1 : 0) + ' µg/m³';
+  $('oV').textContent = fmt(v.V, 1); $('oE').textContent = fmt(v.E, 1);
+  const r = ARDOR.avaliar(v.T, v.U, v.P, v.V, v.E), C = NC();
+  const lvl = (V, x) => { const g = V.fuzz(x); return termo(Object.keys(g).reduce((a, b) => g[a] >= g[b] ? a : b)); };
+  $('v1').textContent = fmt(r.calor, 1); $('t1').textContent = lvl(ARDOR.vars.CALOR, r.calor) + ' · escala 0–10';
+  $('v2').textContent = fmt(r.carga); $('t2').textContent = lvl(ARDOR.vars.CARGA, r.carga) + ' · escala 0–100';
+  $('v3').textContent = fmt(r.risco); $('t3').textContent = NIVR[r.nivel] + ' · ' + ACAO('fazer a atividade')[r.nivel][0];
+  $('st3').style.borderTopColor = C[r.nivel]; $('v3').style.color = C[r.nivel];
+  $('st2').style.borderTopColor = C[ARDOR.nivel(r.carga)];
+  const iq = v.P <= 15 ? 0 : v.P <= 50 ? 1 : v.P <= 75 ? 2 : v.P <= 125 ? 3 : 4, IQN = ['Boa', 'Moderada', 'Ruim', 'Muito ruim', 'Péssima'];
+  const nc = ARDOR.nivel(r.carga);
+  $('cmp').innerHTML = `<span>O IQAr oficial diria</span><span class="pill" style="background:${C[iq]}">${IQN[iq]}</span>
+    <span>· a carga ambiental do ARDOR diz</span><span class="pill" style="background:${C[nc]}">${['Baixa', 'Moderada', 'Alta', 'Muito alta', 'Crítica'][nc]}</span>
+    ${nc > iq ? '<span style="color:var(--ember);font-weight:600">O calor está agravando o risco da fumaça.</span>' : ''}`;
+  plotMF($('mPM'), ARDOR.vars.PM, v.P); plotMF($('mT'), ARDOR.vars.T, v.T);
+  plotMF($('mCG'), ARDOR.vars.CARGA, r.carga, r.s2.agg); plotMF($('mR'), ARDOR.vars.RISCO, r.risco, r.s3.agg);
+  const top = [...r.s2.ativ.slice(0, 3).map(x => ({ ...x, s: 2 })), ...r.s3.ativ.slice(0, 3).map(x => ({ ...x, s: 3 }))];
+  $('regras').innerHTML = top.map(x => `<div class="rule"><span class="f">${fmt(x.f, 2)}<span class="bar" style="display:block;margin-top:3px"><i style="width:${x.f * 100}%"></i></span></span>
+    <span>SE ${Object.entries(x.ant).map(([k, t]) => `${nomeVar[k]} <b>${termo(t)}</b>`).join(' E ')} ENTÃO ${x.s === 2 ? 'carga' : 'risco'} <b>${termo(x.cons)}</b></span></div>`).join('');
+}
+S.forEach(k => $('s' + k).addEventListener('input', sim));
+// pior dia de 2024 (valores de dados/estatisticas.json); mantém vulnerabilidade e esforço
+const PD = ST.pior_dia;
+$('piorDia').textContent = `Carregar o pior dia de 2024 (${PD.data.slice(8, 10)}/${PD.data.slice(5, 7)})`;
+$('piorDia').onclick = () => { $('sP').value = PD.pm; $('sT').value = PD.T; $('sU').value = PD.UR; sim(); };
+
+// ---------------- 2024
+function facts() {
+  const jn = ST.janela_segura_crianca_h;
+  const F = [[ST.pm_oms, 'dias com fumaça acima do limite da OMS (15 µg/m³)'],
+    [ST.ambos, `desses ${ST.pm_oms} dias também tiveram calor em nível de cautela`],
+    [ST.iqar_boa_mod_mas_carga_alta, 'dias em que o IQAr dizia "boa" ou "moderada" e o ARDOR apontou carga alta'],
+    [fmt(jn['11'], 0) + ' h', 'de janela segura média por dia para educação física em novembro (contra ' + fmt(jn['7'], 0) + ' h em julho)']];
+  $('facts').innerHTML = F.map(([n, t]) => `<div><b>${n}</b><span>${t}</span></div>`).join('');
+  const mx = Math.max(...Object.values(jn));
+  $('meses').innerHTML = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'].map((m, i) =>
+    `<div><div class="bars"><i style="--h:${jn[i + 1] / mx * 100}%"></i></div>${m}<br><span class="mono">${fmt(jn[i + 1], 1)} h</span></div>`).join('');
+}
+function chart() {
+  const cv = $('c2024'), dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.scale(dpr, dpr);
+  const pad = { l: 34, r: 8, t: 10, b: 24 }, W = w - pad.l - pad.r, H = h - pad.t - pad.b, n = D2024.length;
+  const X = i => pad.l + i / (n - 1) * W, Y = v => pad.t + (1 - v / 100) * H, C = NC();
+  g.font = '10px ' + css('--mono'); g.fillStyle = css('--muted'); g.strokeStyle = css('--line'); g.lineWidth = 1;
+  [0, 25, 50, 75, 100].forEach(v => { g.beginPath(); g.moveTo(pad.l, Y(v)); g.lineTo(w - pad.r, Y(v)); g.stroke(); g.textAlign = 'right'; g.fillText(v, pad.l - 6, Y(v) + 3); });
+  const ms = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']; g.textAlign = 'center';
+  D2024.forEach((d, i) => { if (d[0].slice(8) === '15') g.fillText(ms[+d[0].slice(5, 7) - 1], X(i), h - 6); });
+  g.strokeStyle = css('--muted'); g.lineWidth = 1.2; g.beginPath();
+  D2024.forEach((d, i) => { const y = Y(d[4] * 20 + 10); i ? g.lineTo(X(i), y) : g.moveTo(X(i), y); }); g.stroke();
+  D2024.forEach((d, i) => { g.fillStyle = C[ARDOR.nivel(d[3])]; g.beginPath(); g.arc(X(i), Y(d[3]), 2.3, 0, 7); g.fill(); });
+}
+let rt; const redraw = () => { clearTimeout(rt); rt = setTimeout(() => { sim(); chart(); drawNow(); }, 80); };
+window.addEventListener('resize', redraw);
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redraw); } catch (e) {}
+new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+facts(); sim(); chart(); carregar();
+})();
+</script>
